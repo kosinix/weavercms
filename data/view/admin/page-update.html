@@ -1,0 +1,331 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Add Page</h1>
+        </div>
+    </div>
+    <div v-cloak id="page-update">
+        <div v-if="alertShow" v-bind:class="alertClass" role="alert">${alertMessage}</div>
+        <form v-on:submit.prevent="onSubmit" v-bind:action="formUrl" id="form-page-update" method="POST" class="row">
+            <input v-model="csrf" type="hidden" name="csrf" value="">
+            <div class="col-12 col-sm-9">
+                <div class="panel panel-main">
+                    <input v-model="id" type="hidden" name="id">
+                    <div class="field field-page-title">
+                        <input v-model="title" v-bind:disabled="fieldDisabled" class="page-title form-control" type="text" name="title" value="" placeholder="Enter title here...">
+                    </div>
+                    <div class="field field-page-location">
+                        <label for="page-location">Location: ${baseUrl}</label>
+                        <input v-model="location" v-bind:disabled="fieldDisabled" id="page-location" class="form-control page-location" type="text" name="location" value="">
+                    </div>
+                    <div class="field field-page-content">
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn" data-toggle="modal" data-target="#modalFile">Insert Media</button>
+                        <textarea v-model="content" v-on:change="onChangeContent" v-bind:disabled="fieldDisabled" class="page-content form-control" name="content" id="page-content" cols="30" rows="10"></textarea>
+                        <div class="editor-content" id="editor-content"></div>
+                    </div>
+
+                </div>
+
+                <div class="panel panel-view-variables">
+                    <div class="panel-title">View Variables</div>
+                    <div class="panel-content">
+                        <div class="field field-page-view">
+                            <label for="editor-code"><strong>Available:</strong> app, request, response, admin, page, view</label>
+                            <textarea v-model="code" v-on:change="onChangeCode" v-bind:disabled="fieldDisabled" class="page-code form-control" name="code" id="page-code" cols="30" rows="10"></textarea>
+                            <div id="editor-code" class="editor-code"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-view-template">
+                    <div class="panel-title">View Template</div>
+                    <div class="panel-content">
+                        <div class="field field-page-view">
+                            <label for="editor-view"><strong>Hierarchy:</strong> <a href="#">document.html</a> > <a href="#">body.html</a> > page.html</label>
+                            <textarea v-model="view" v-on:change="onChangeView" v-bind:disabled="fieldDisabled" class="page-view form-control" name="view" id="page-view" cols="30" rows="10"></textarea>
+                            <div id="editor-view" class="editor-view"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3">
+                <div class="panel panel-publish">
+                    <div class="panel-title">Publish Options</div>
+                    <div class="panel-content">
+                        <div class="field field-page-visibility">
+                            <label for="page-visibility">Visibility:</label>
+                            <select v-model="visibility" v-bind:disabled="fieldDisabled" name="visibility" id="page-visibility" class="form-control page-visibility">
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                                <option disabled value="direct">Direct Link</option>
+                            </select>
+                        </div>
+                        <div class="field field-page-static">
+                            <label for="page-static">Static</label>
+                            <input v-model="static" type="checkbox" id="page-static" name="static" value="1">
+                        </div>
+                        <button v-bind:disabled="fieldDisabled" class="btn btn-primary" type="submit">${btnSubmitValue}</button>
+                    </div>
+                </div>
+                <div class="panel panel-meta">
+                    <div class="panel-title">Page Properties</div>
+                    <div class="panel-content">
+                        <div class="field field-page-author">
+                            <label for="author">Author:</label>
+                            <input type="text" id="author" class="form-control page-author" name="author" value="Nico Amarilla">
+                        </div>
+                        <div class="field field-page-date">
+                            <label for="date">Date</label>
+                            <input type="text" id="date" class="form-control page-date" name="date" value="2017-01-01">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<template id="raw-content">{{page.content | safe}}</template>
+<template id="raw-code">{{page.code | safe}}</template>
+<template id="raw-view">{{view | safe}}</template>
+{% endblock %}
+{% block extra %}
+<!-- Modal -->
+<div class="modal modal-file fade" id="modalFile" tabindex="-1" role="dialog" aria-labelledby="modalFile" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">${title}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="files-gallery">
+            {% for file in files %}
+                <div class="file {% if loop.index==6 %}selected{% endif %}">
+                    <div class="inner">
+                        <div class="preview">
+                            <img src="/admin/file-read?uid={{file.uid}}&variant=medium" alt="{{file.title}}">
+                        </div>
+                        <div class="name">
+                            {{file.originalName}}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+                <div class="file variants">
+                    <div class="inner">
+                    {% for variant in files[0].variants %}
+                        <div class="variant">
+                            <div class="preview-variant">
+                                <img  src="/admin/file-read?uid={{files[0].uid}}&variant={{variant.name}}" alt="image">
+                            </div>
+                            <div>{{variant.width}}x{{variant.height}} {{variant.name}}</div>
+                        </div>
+                    {% endfor %}
+                    {% for variant in files[0].variants %}
+                        <div class="variant">
+                            <div class="preview-variant">
+                                <img  src="/admin/file-read?uid={{files[0].uid}}&variant={{variant.name}}" alt="image">
+                            </div>
+                            <div>{{variant.width}}x{{variant.height}} {{variant.name}}</div>
+                        </div>
+                    {% endfor %}
+                    {% for variant in files[0].variants %}
+                        <div class="variant">
+                            <div class="preview-variant">
+                                <img  src="/admin/file-read?uid={{files[0].uid}}&variant={{variant.name}}" alt="image">
+                            </div>
+                            <div>{{variant.width}}x{{variant.height}} {{variant.name}}</div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+             {% for file in files %}
+                <div class="file">
+                    <div class="inner">
+                        <div class="preview">
+                            <img src="/admin/file-read?uid={{file.uid}}&variant=medium" alt="{{file.title}}">
+                        </div>
+                        <div class="name">
+                            {{file.originalName}}
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+          </div>
+          <div class="file-preview">
+              <div>
+                  <img src="/admin/file-read?uid={{files[4].uid}}" alt="">
+              </div>
+              <div class="name">
+                  {{files[4].originalName}}
+              </div>
+              <div class="prop">
+                <div class="field">
+                    <label for="">Location</label>
+                    <input type="text" value="{{files[4].location}}">
+                </div>
+                <div class="field">
+                    <label for="">UID</label>
+                    <span>{{files[4].uid}}</span>
+                </div>
+                <div class="field">
+                    <label for="">Usage</label>
+                    <span>0</span>
+                </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button v-on:click="onInsert" type="button" class="btn btn-primary" data-dismiss="modal">Insert</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{admin.url}}/js/jquery.min.js"></script>
+<script src="{{admin.url}}/bootstrap4/js/bootstrap.bundle.js"></script>
+<script src="{{admin.url}}/js/vue.js"></script>
+<script>
+    jQuery('button[data-target="#modalFile"]').trigger('click');
+    var static = {{ page.static }};
+    var form = new Vue({
+        delimiters: ["${", "}"],
+        el: '#page-update',
+        data: {
+            formId: '#form-page-update',
+            formUrl: "{{admin.url}}/admin/page-update.json",
+            baseUrl: "{{admin.url}}",
+            btnSubmitValue: "Update",
+            btnSubmitValueWait: "Updating...",
+            csrf: "{{csrf}}",
+            id: "{{page.id}}",
+            title: '{{ page.title | d("") }}',
+            location: '{{ page.location | d("") }}',
+            content: jQuery("#raw-content").html(),
+            code: jQuery("#raw-code").html(),
+            view: jQuery("#raw-view").html(),
+            visibility: '{{ page.visibility }}',
+            static: static,
+            fieldDisabled: false,
+            alertClass: "flash",
+            alertMessage: "",
+            alertShow: false
+        },
+        methods: {
+            onChangeContent: function(){
+                window.editorContent.setValue(this.content);
+            },
+            onChangeCode: function(){
+                window.editorCode.setValue(this.code);
+            },
+            onChangeView: function(){
+                window.editorView.setValue(this.view);
+            },
+            onSubmit: function (e) {
+                var me = this,
+                    btnSubmitValueOrig = me.btnSubmitValue;
+                me.btnSubmitValue = me.btnSubmitValueWait;
+                me.fieldDisabled = true;
+
+                var formData = jQuery(me.formId).serializeArray();
+                // formData.push({ name: 'viewContent', value: window.editorView.getValue() });
+
+                jQuery.post(me.formUrl, formData).then(function (data) {
+                    // console.log(data);
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-success';
+                    me.alertMessage = 'Page updated';
+                    // window.location.replace(data.redirectTo);
+                }).fail(function (jqXHR, textStatus, httpError) {
+                    var error = jqXHR.responseJSON || ['Unknown error'];
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-error';
+                    me.alertMessage = error.shift();
+                }).always(function () {
+                    me.btnSubmitValue = btnSubmitValueOrig;
+                    me.fieldDisabled = false;
+                });
+            }
+        }
+    });
+
+    var modal = new Vue({
+        delimiters: ["${", "}"],
+        el: '#modalFile',
+        data: {
+            title: "Select One",
+            text: "ZZZZZ"
+        },
+        methods: {
+            onInsert: function(){
+                var me = this;
+                var line = window.editorContent.getPosition();
+                var selection = window.editorContent.getSelection();
+                console.log(selection, line);
+                var range = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
+                var id = { major: 1, minor: 1 };
+                var text = me.text;
+                var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
+                window.editorContent.executeEdits("my-insert", [op]);
+            }
+        }
+    })
+</script>
+<script src="/monaco-editor/min/vs/loader.js"></script>
+<script>
+    require.config({ paths: { 'vs': '/monaco-editor/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+
+        monaco.editor.onDidCreateEditor(function(editor){
+            jQuery('#page-content').hide();
+            jQuery('#page-code').hide();
+            jQuery('#page-view').hide();
+        });
+
+        window.editorContent = monaco.editor.create(document.getElementById('editor-content'), {
+            value: form.content,
+            language: 'html',
+            minimap: {
+                enabled: false
+            }
+        });
+
+        window.editorContent.onDidChangeModelContent(function(changes){
+           form.content = window.editorContent.getValue();
+        });
+
+        window.editorCode = monaco.editor.create(document.getElementById('editor-code'), {
+            value: form.code,
+            language: 'javascript',
+            minimap: {
+                enabled: false
+            }
+        });
+
+        window.editorCode.onDidChangeModelContent(function(changes){
+           form.code = window.editorCode.getValue();
+        });
+
+        window.editorView = monaco.editor.create(document.getElementById('editor-view'), {
+            value: form.view,
+            language: 'html',
+            minimap: {
+                enabled: false
+            }
+        });
+
+        window.editorView.onDidChangeModelContent(function(changes){
+           form.view = window.editorView.getValue();
+        });
+    });
+</script>
+{% endblock %}

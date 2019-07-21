@@ -1,0 +1,153 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-12">
+            <h1>Deleted</h1>
+        </div>
+
+        {% if pageNumbers %}
+            <div class="col-12 col-sm-6">
+                {% if offset > 0 %}
+                <a href="/admin/page-deleted.html?offset={{offset-1}}&limit={{limit}}" class="btn btn-light btn-sm">Prev</a>
+                {% else %}
+                <span class="btn btn-sm">Prev</span>
+                {% endif %}
+                <span class="btn">{{offset+1}} of {{pageNumbers}}</span>
+                {% if offset+1 < pageNumbers %}
+                <a href="/admin/page-deleted.html?offset={{offset+1}}&limit={{limit}}" class="btn btn-light btn-sm">Next</a>
+                {% else %}
+                <span class="btn btn-sm">Next</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+
+        <div class="col-12">
+                <div v-cloak id="pages">
+                    <div v-if="alertShow" v-bind:class="alertClass" role="alert">${alertMessage}</div>
+                    <div v-if="pages.length > 0">
+                        <table class="table table-striped table-pages">
+                            <tr>
+                                <th></th>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Excerpt</th>
+                                <th>Pub Date</th>
+                                <th>Date Modified</th>
+                                <th></th>
+                            </tr>
+                            <tr v-for="(page, index) in pages" v-bind:id="'row-'+page.id">
+                                <td>
+                                </td>
+                                <td>${page.title}</td>
+                                <td>${page.location}</td>
+                                <td>${page.content}</td>
+                                <td>${page.createdAt}</td>
+                                <td>${page.updatedAt}</td>
+                                <td>
+                                    <button v-on:click.prevent="onRestore(page.id)" v-bind:disabled="restoreButtons[page.id].disabled" class="btn btn-success btn-sm">${restoreButtons[page.id].text}</button>
+                                    <button v-on:click.prevent="onDelete(page.id)" v-bind:disabled="deleteButtons[page.id].disabled" class="btn btn-danger btn-sm">${deleteButtons[page.id].text}</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p v-if="pages.length <=0">No deleted page found.</p>
+                </div>
+        </div>
+    </div>
+</div>
+{% include "parts/screen-options.html" %}
+{% endblock %}
+{% block scripts %}
+<script src="{{admin.url}}/js/jquery.min.js"></script>
+<script src="{{admin.url}}/js/lodash.min.js"></script>
+<script src="{{admin.url}}/js/vue.js"></script>
+<script src="{{admin.url}}/js/admin.js"></script>
+<script>
+    var pages = {{pages | safe }};
+    var restoreButtons = {};
+    var deleteButtons = {};
+    for(var i=0; i<pages.length; i++){
+        restoreButtons[pages[i].id] = {
+            text: 'Restore',
+            disabled: false
+        };
+        deleteButtons[pages[i].id] = {
+            text: 'Delete Forever',
+            disabled: false
+        };
+    }
+    var form = new Vue({
+        delimiters: ["${", "}"],
+        el: '#pages',
+        data: {
+            pages: pages,
+            restoreButtons: restoreButtons,
+            deleteButtons: deleteButtons,
+            appUrl: '{{admin.url}}',
+            restoreUrl: '/admin/page-restore.json',
+            deleteUrl: '/admin/page-delete.json',
+            csrf: "{{csrf}}",
+            alertClass: "flash",
+            alertMessage: "",
+            alertShow: false
+        },
+        methods: {
+            onRestore: function(id){
+                var me = this;
+
+                me.restoreButtons[id].text = 'Restoring...';
+                me.restoreButtons[id].disabled = true;
+                me.deleteButtons[id].disabled = true;
+
+                jQuery.post(me.restoreUrl, {id:id, csrf: me.csrf}).then(function (data) {
+                    console.log(data);
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-success';
+                    me.alertMessage = 'Page restored.';
+                    var removed = _.remove(me.pages, function(o){
+                        return o.id === id;
+                    });
+                }).fail(function (jqXHR, textStatus, httpError) {
+                    var error = jqXHR.responseJSON || ['Unknown error'];
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-error';
+                    me.alertMessage = error.shift();
+                }).always(function () {
+                    me.restoreButtons[id].text = 'Restore';
+                    me.restoreButtons[id].disabled = false;
+                    me.deleteButtons[id].disabled = false;
+                });
+            },
+            onDelete: function(id){
+                var me = this;
+
+                me.deleteButtons[id].text = 'Deleting...';
+                me.restoreButtons[id].disabled = true;
+                me.deleteButtons[id].disabled = true;
+
+                jQuery.post(me.deleteUrl, {id:id, csrf: me.csrf, mode:'hard-delete'}).then(function (data) {
+                    console.log(data);
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-success';
+                    me.alertMessage = 'Page deleted.';
+                    var removed = _.remove(me.pages, function(o){
+                        return o.id === id;
+                    });
+                }).fail(function (jqXHR, textStatus, httpError) {
+                    var error = jqXHR.responseJSON || ['Unknown error'];
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-error';
+                    me.alertMessage = error.shift();
+                }).always(function () {
+                    me.deleteButtons[id].text = 'Delete';
+                    me.restoreButtons[id].disabled = false;
+                    me.deleteButtons[id].disabled = false;
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

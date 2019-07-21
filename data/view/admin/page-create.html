@@ -1,0 +1,117 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Add Page</h1>
+        </div>
+    </div>
+    <div v-cloak id="page-update">
+        <div v-if="alertShow" v-bind:class="alertClass" role="alert">${alertMessage}</div>
+        <form v-on:submit.prevent="onSubmit" v-bind:action="formUrl" id="form-page-update" method="POST" class="row">
+            <input v-model="csrf" type="hidden" name="csrf" value="">
+            <div class="col-12 col-sm-9">
+                <div class="panel panel-main">
+                    <input v-model="id" type="hidden" name="id">
+                    <div class="field field-page-title">
+                        <input v-model="title" v-bind:disabled="fieldDisabled" class="page-title form-control" type="text" name="title" value="" placeholder="Enter title here...">
+                    </div>
+                    <div class="field field-page-location">
+                        <label for="page-location">Location: ${baseUrl}</label>
+                        <input v-model="location" v-bind:disabled="fieldDisabled" id="page-location" class="form-control page-location" type="text" name="location" value="">
+                    </div>
+                    <div class="field field-page-content">
+                        <textarea v-model="content" v-bind:disabled="fieldDisabled" class="page-content form-control" name="content" id="" cols="30" rows="10"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3">
+                <div class="panel panel-publish">
+                    <div class="panel-title">Publish Options</div>
+                    <div class="panel-content">
+                        <div class="field field-page-visibility">
+                            <label for="page-visibility">Visibility:</label>
+                            <select v-model="visibility" v-bind:disabled="fieldDisabled" name="visibility" id="page-visibility" class="form-control page-visibility">
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                                <option disabled value="direct">Direct Link</option>
+                            </select>
+                        </div>
+                        <div class="field field-page-static">
+                            <label for="page-static">Static</label>
+                            <input type="checkbox" id="page-static" name="static" value="1">
+                        </div>
+                        <button v-bind:disabled="fieldDisabled" class="btn btn-primary" type="submit">${btnSubmitValue}</button>
+                    </div>
+                </div>
+                <div class="panel panel-meta">
+                    <div class="panel-title">Page Properties</div>
+                    <div class="panel-content">
+                        <div class="field field-page-author">
+                            <label for="author">Author:</label>
+                            <input type="text" id="author" class="form-control page-author" name="author" value="Nico Amarilla">
+                        </div>
+                        <div class="field field-page-date">
+                            <label for="date">Date</label>
+                            <input type="text" id="date" class="form-control page-date" name="date" value="2017-01-01">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{admin.url}}/js/jquery.min.js"></script>
+<script src="{{admin.url}}/js/vue.js"></script>
+<script>
+    var form = new Vue({
+        delimiters: ["${", "}"],
+        el: '#page-update',
+        data: {
+            formId: '#form-page-update',
+            formUrl: "{{admin.url}}/admin/page-create.json",
+            baseUrl: "{{admin.url}}",
+            btnSubmitValue: "Create",
+            btnSubmitValueWait: "Creating...",
+            csrf: "{{csrf}}",
+            id: "",
+            title: '',
+            location: '/',
+            content: '',
+            visibility: 'public',
+            fieldDisabled: false,
+            alertClass: "flash",
+            alertMessage: "",
+            alertShow: false
+        },
+        methods: {
+            onSubmit: function (e) {
+                var me = this,
+                    btnSubmitValueOrig = me.btnSubmitValue;
+                me.btnSubmitValue = me.btnSubmitValueWait;
+                me.fieldDisabled = true;
+
+                var formData = jQuery(me.formId).serializeArray();
+                jQuery.post(me.formUrl, formData).then(function (data) {
+                    console.log(data);
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-success';
+                    me.alertMessage = 'Page created.';
+                    // window.location.replace(data.redirectTo);
+                }).fail(function (jqXHR, textStatus, httpError) {
+                    var error = jqXHR.responseJSON || ['Unknown error'];
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-error';
+                    me.alertMessage = error.shift();
+                }).always(function () {
+                    me.btnSubmitValue = btnSubmitValueOrig;
+                    me.fieldDisabled = false;
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,495 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://weavercms.org/schemas/config.json",
+  "type": "object",
+  "properties": {
+    "app": {
+      "$id": "/properties/app",
+      "type": "object",
+      "properties": {
+        "port": {
+          "$id": "/properties/app/properties/port",
+          "type": "integer",
+          "title": "Web App Port",
+          "description": "The port used to connect to the web app",
+          "default": 80,
+          "examples": [
+            80,
+            8080
+          ]
+        },
+        "url": {
+          "$id": "/properties/app/properties/url",
+          "type": "string",
+          "title": "App Base URL",
+          "description": "The base url of the web app. Include the port number if port number is not 80",
+          "default": "",
+          "examples": [
+            "http://weavercms.org",
+            "http://weavercms.org:8080"
+          ]
+        },
+        "dir": {
+          "$id": "/properties/app/properties/dir",
+          "type": "string",
+          "title": "App Base Directory",
+          "description": "Full path to the base directory of the web app",
+          "default": "",
+          "examples": [
+            "/var/www/web/app"
+          ]
+        },
+        "dirs": {
+          "$id": "/properties/app/properties/dirs",
+          "type": "object",
+          "properties": {
+            "data": {
+              "$id": "/properties/app/properties/dirs/properties/data",
+              "type": "string",
+              "title": "Data Directory",
+              "description": "Full path to the data directory. Leave blank, to let the app will fill this value.",
+              "default": "",
+              "examples": [
+                ""
+              ]
+            },
+            "public": {
+              "$id": "/properties/app/properties/dirs/properties/public",
+              "type": "string",
+              "title": "Public Directory",
+              "description": "Full path to the public directory. Leave blank, to let the app will fill this value.",
+              "default": "",
+              "examples": [
+                ""
+              ]
+            },
+            "view": {
+              "$id": "/properties/app/properties/dirs/properties/view",
+              "type": "string",
+              "title": "View Directory",
+              "description": "Full path to the view directory. Leave blank, to let the app will fill this value.",
+              "default": "",
+              "examples": [
+                ""
+              ]
+            },
+            "src": {
+              "$id": "/properties/app/properties/dirs/properties/src",
+              "type": "string",
+              "title": "Src Directory",
+              "description": "Full path to the src directory. Leave blank, to let the app will fill this value.",
+              "default": "",
+              "examples": [
+                ""
+              ]
+            }
+          },
+          "required": [
+            "data",
+            "public",
+            "view",
+            "src"
+          ]
+        }
+      },
+      "required": [
+        "port",
+        "url",
+        "dir"
+      ]
+    },
+    "admin": {
+      "$id": "/properties/admin",
+      "type": "object",
+      "properties": {
+        "port": {
+          "$id": "/properties/admin/properties/port",
+          "type": "integer",
+          "title": "Web App Admin Port",
+          "description": "The port used to connect to the web app admin. Must be different than web app port.",
+          "default": "",
+          "examples": [
+            8081
+          ]
+        },
+        "url": {
+          "$id": "/properties/admin/properties/url",
+          "type": "string",
+          "title": "App Admin Base URL",
+          "description": "The base url of the web app admin. Include the port number.",
+          "default": "",
+          "examples": [
+            "http://weavercms.org:8081"
+          ]
+        }
+      },
+      "required": [
+        "port",
+        "url"
+      ]
+    },
+    "express": {
+      "$id": "/properties/express",
+      "type": "object",
+      "properties": {
+        "trustProxy": {
+          "$id": "/properties/express/properties/trustProxy",
+          "type": "boolean",
+          "title": "Expressjs Trust Proxy Setting",
+          "description": "Set to true when using a proxy. For example, if using Nginx as reverse proxy.",
+          "default": false
+        }
+      },
+      "required": [
+        "trustProxy"
+      ]
+    },
+    "nunjucks": {
+      "$id": "/properties/nunjucks",
+      "type": "object",
+      "properties": {
+        "loader": {
+          "$id": "/properties/nunjucks/properties/loader",
+          "type": "object",
+          "properties": {
+            "watch": {
+              "$id": "/properties/nunjucks/properties/loader/properties/watch",
+              "type": "boolean",
+              "title": "File System Watch Flag",
+              "description": "If true, the system will automatically update templates when it changes in the file system. Recommended true on developement and false on production.",
+              "default": true
+            },
+            "noCache": {
+              "$id": "/properties/nunjucks/properties/loader/properties/noCache",
+              "type": "boolean",
+              "title": "No Cache Flag",
+              "description": "If true, the system will avoid using a cache and templates will be recompiled every single time. Recommended true on development and false on production.",
+              "default": true
+            }
+          },
+          "required": [
+            "watch",
+            "noCache"
+          ]
+        },
+        "environment": {
+          "$id": "/properties/nunjucks/properties/environment",
+          "type": "object",
+          "properties": {
+            "autoescape": {
+              "$id": "/properties/nunjucks/properties/environment/properties/autoescape",
+              "type": "boolean",
+              "title": "Auto Escape",
+              "description": "If true, output with dangerous characters are escaped automatically.",
+              "default": true
+            },
+            "throwOnUndefined": {
+              "$id": "/properties/nunjucks/properties/environment/properties/throwOnUndefined",
+              "type": "boolean",
+              "title": "Throw On Undefined",
+              "description": "If true, throw errors when outputting a null/undefined value.",
+              "default": false
+            },
+            "trimBlocks": {
+              "$id": "/properties/nunjucks/properties/environment/properties/trimBlocks",
+              "type": "boolean",
+              "title": "Trim Blocks",
+              "description": "If true, automatically remove trailing newlines from a block/tag.",
+              "default": false
+            },
+            "lstripBlocks": {
+              "$id": "/properties/nunjucks/properties/environment/properties/lstripBlocks",
+              "type": "boolean",
+              "title": "Left Strip Blocks",
+              "description": "If true, automatically remove leading whitespace from a block/tag.",
+              "default": false
+            }
+          },
+          "required": [
+            "autoescape",
+            "throwOnUndefined",
+            "trimBlocks",
+            "lstripBlocks"
+          ]
+        }
+      }
+    },
+    "mail": {
+      "$id": "/properties/mail",
+      "type": "object",
+      "properties": {
+        "enable": {
+          "$id": "/properties/mail/properties/enable",
+          "type": "boolean",
+          "title": "The Enable Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": false,
+          "examples": [
+            false
+          ]
+        }
+      }
+    },
+    "bcrypt": {
+      "$id": "/properties/bcrypt",
+      "type": "object",
+      "properties": {
+        "saltRounds": {
+          "$id": "/properties/bcrypt/properties/saltRounds",
+          "type": "integer",
+          "title": "The Saltrounds Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0,
+          "examples": [
+            10
+          ]
+        }
+      }
+    },
+    "db": {
+      "$id": "/properties/db",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$id": "/properties/db/properties/name",
+          "type": "string",
+          "title": "The Name Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "database"
+          ]
+        }
+      }
+    },
+    "sequelize": {
+      "$id": "/properties/sequelize",
+      "type": "object",
+      "properties": {
+        "host": {
+          "$id": "/properties/sequelize/properties/host",
+          "type": "string",
+          "title": "The Host Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "localhost"
+          ]
+        },
+        "dialect": {
+          "$id": "/properties/sequelize/properties/dialect",
+          "type": "string",
+          "title": "The Dialect Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "sqlite"
+          ]
+        },
+        "pool": {
+          "$id": "/properties/sequelize/properties/pool",
+          "type": "object",
+          "properties": {
+            "max": {
+              "$id": "/properties/sequelize/properties/pool/properties/max",
+              "type": "integer",
+              "title": "The Max Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                5
+              ]
+            },
+            "min": {
+              "$id": "/properties/sequelize/properties/pool/properties/min",
+              "type": "integer",
+              "title": "The Min Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                0
+              ]
+            },
+            "acquire": {
+              "$id": "/properties/sequelize/properties/pool/properties/acquire",
+              "type": "integer",
+              "title": "The Acquire Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                30000
+              ]
+            },
+            "idle": {
+              "$id": "/properties/sequelize/properties/pool/properties/idle",
+              "type": "integer",
+              "title": "The Idle Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                10000
+              ]
+            }
+          }
+        },
+        "operatorsAliases": {
+          "$id": "/properties/sequelize/properties/operatorsAliases",
+          "type": "string",
+          "title": "The Operatorsaliases Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "false"
+          ]
+        },
+        "storage": {
+          "$id": "/properties/sequelize/properties/storage",
+          "type": "string",
+          "title": "The Storage Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            "data/app.db"
+          ]
+        },
+        "define": {
+          "$id": "/properties/sequelize/properties/define",
+          "type": "object",
+          "properties": {
+            "freezeTableName": {
+              "$id": "/properties/sequelize/properties/define/properties/freezeTableName",
+              "type": "string",
+              "title": "The Freezetablename Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "true"
+              ]
+            },
+            "timestamps": {
+              "$id": "/properties/sequelize/properties/define/properties/timestamps",
+              "type": "string",
+              "title": "The Timestamps Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "false"
+              ]
+            },
+            "paranoid": {
+              "$id": "/properties/sequelize/properties/define/properties/paranoid",
+              "type": "boolean",
+              "title": "The Paranoid Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": false,
+              "examples": [
+                true
+              ]
+            }
+          }
+        }
+      }
+    },
+    "session": {
+      "$id": "/properties/session",
+      "type": "object",
+      "properties": {
+        "store": {
+          "$id": "/properties/session/properties/store",
+          "type": "object",
+          "properties": {
+            "db": {
+              "$id": "/properties/session/properties/store/properties/db",
+              "type": "string",
+              "title": "The Db Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "sessions.db"
+              ]
+            },
+            "dir": {
+              "$id": "/properties/session/properties/store/properties/dir",
+              "type": "string",
+              "title": "The Dir Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "data"
+              ]
+            }
+          }
+        },
+        "cookie": {
+          "$id": "/properties/session/properties/cookie",
+          "type": "object",
+          "properties": {
+            "httpOnly": {
+              "$id": "/properties/session/properties/cookie/properties/httpOnly",
+              "type": "boolean",
+              "title": "The Httponly Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": false,
+              "examples": [
+                false
+              ]
+            },
+            "maxAge": {
+              "$id": "/properties/session/properties/cookie/properties/maxAge",
+              "type": "integer",
+              "title": "The Maxage Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                3600000
+              ]
+            },
+            "secure": {
+              "$id": "/properties/session/properties/cookie/properties/secure",
+              "type": "boolean",
+              "title": "The Secure Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": false,
+              "examples": [
+                false
+              ]
+            }
+          }
+        }
+      }
+    },
+    "mailer": {
+      "$id": "/properties/mailer",
+      "type": "object",
+      "properties": {
+        "smtp": {
+          "$id": "/properties/mailer/properties/smtp",
+          "type": "object",
+          "properties": {
+            "port": {
+              "$id": "/properties/mailer/properties/smtp/properties/port",
+              "type": "integer",
+              "title": "The Port Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": 0,
+              "examples": [
+                465
+              ]
+            },
+            "secure": {
+              "$id": "/properties/mailer/properties/smtp/properties/secure",
+              "type": "string",
+              "title": "The Secure Schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "true"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

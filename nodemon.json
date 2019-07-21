@@ -1,0 +1,12 @@
+{
+  "watch": [
+    "data/*",
+    "src/*",
+    "test/*",
+    "admin.js",
+    "all.js",
+    "app.js",
+    "package.json",
+    "test/samples/"
+  ]
+}

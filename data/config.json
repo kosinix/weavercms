@@ -1,0 +1,77 @@
+{
+  "app": {
+    "port": "8080",
+    "url": "http://weavercms.org:8080",
+    "dir": "",
+    "dirs": {
+      "data": "",
+      "public": "",
+      "view": "",
+      "src": "",
+      "upload": ""
+    }
+  },
+  "admin": {
+    "port": "8081",
+    "url": "http://weavercms.org:8081"
+  },
+  "express": {
+    "trustProxy": false
+  },
+  "nunjucks": {
+    "loader": {
+      "watch": true,
+      "noCache": true
+    },
+    "environment": {
+      "autoescape": true,
+      "throwOnUndefined": false,
+      "trimBlocks": false,
+      "lstripBlocks": false
+    }
+  },
+  "mail": {
+    "enable": false
+  },
+  "bcrypt": {
+    "saltRounds": 10
+  },
+  "db": {
+    "name": "database"
+  },
+  "sequelize": {
+    "host": "localhost",
+    "dialect": "sqlite",
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    },
+    "operatorsAliases": "false",
+    "storage": "data/app.db",
+    "define": {
+      "freezeTableName": "true",
+      "timestamps": "false",
+      "paranoid": true
+    },
+    "logging": false
+  },
+  "session": {
+    "store": {
+      "db": "sessions.db",
+      "dir": "data"
+    },
+    "cookie": {
+      "httpOnly": false,
+      "maxAge": 3600000,
+      "secure": false
+    }
+  },
+  "mailer": {
+    "smtp": {
+      "port": 465,
+      "secure": "true"
+    }
+  }
+}

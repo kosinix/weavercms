@@ -1,0 +1,7 @@
+.idea
+node_modules
+data/credentials.json
+data/app.db
+test/tmp
+data/upload
+package-lock.json

@@ -1,0 +1,131 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Files <a class="btn btn-light btn-sm" href="/admin/file-create.html">Add New</a></h1>
+        </div>
+        <div class="col-12 col-sm-6">
+            {% if pageNumbers %}
+
+                {% if offset > 0 %}
+                <a href="/admin/files.html?offset={{offset-1}}&limit={{limit}}" class="btn btn-light btn-sm">Prev</a>
+                {% else %}
+                <span class="btn btn-sm">Prev</span>
+                {% endif %}
+                <span class="btn">{{offset+1}} of {{pageNumbers}}</span>
+                {% if offset+1 < pageNumbers %}
+                <a href="/admin/files.html?offset={{offset+1}}&limit={{limit}}" class="btn btn-light btn-sm">Next</a>
+                {% else %}
+                <span class="btn btn-sm">Next</span>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="col-12 col-sm-6 text-right">
+            <p><a class="trash btn btn-light" href="/admin/file-deleted.html"><svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+            </svg></a></p>
+        </div>
+        <div class="col-12">
+            <div v-cloak id="files">
+                <div v-if="alertShow" v-bind:class="alertClass" role="alert">${alertMessage}</div>
+                <div v-if="files.length>0">
+                    <table class="table table-striped table-files">
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Created</th>
+                            <th>Modified</th>
+                            <th></th>
+                        </tr>
+                        <tr v-for="(file, index) in files" v-bind:id="'row-'+file.id">
+                            <td>
+                                <!--<input type="checkbox">-->
+                            </td>
+                            <td>
+                                <img width="100px" v-bind:src="'/admin/file-read?uid='+file.uid+'&variant=small'" alt="">
+                                <a v-bind:href="'/admin/file-update.html?uid='+file.uid">${file.originalName}</a>
+                            </td>
+                            <td>${file.createdAt}</td>
+                            <td>${file.updatedAt}</td>
+                            <td>
+                                <a target="_blank" v-bind:href="'/admin/file-read?uid='+file.uid">Preview</a>
+                                <button v-on:click.prevent="onDelete(file.id)" v-bind:disabled="file.deleteButton.disabled" class="btn btn-light btn-sm">${file.deleteButton.text}</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p v-if="files.length<=0">No file found.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{admin.url}}/js/jquery.min.js"></script>
+<script src="{{admin.url}}/js/lodash.min.js"></script>
+<script src="{{admin.url}}/js/vue.js"></script>
+<script src="{{admin.url}}/js/admin.js"></script>
+<script>
+    var files = {{files | safe }};
+    files = _.map(this.files, function(file){
+        file.deleteButton = {
+            text: "Delete",
+            disabled: false
+        };
+        return file;
+    });
+
+    var vueFiles = new Vue({
+        delimiters: ["${", "}"],
+        el: '#files',
+        data: {
+            files: files,
+            appUrl: '{{admin.url}}',
+            deleteUrl: '/admin/file-delete.json',
+            btnDeleteText: "Delete",
+            csrf: "{{csrf}}",
+            alertClass: "flash",
+            alertMessage: "",
+            alertShow: false
+        },
+        methods: {
+            hasFiles: function(){
+                if (_.size(this.files) > 0){
+                    return true;
+                }
+                return false;
+            },
+            onDelete: function(id, e){
+                var me = this;
+
+                var file = _.find(this.files, function(file){
+                    return file.id === id;
+                });
+                file.deleteButton.text = 'Deleting...';
+                file.deleteButton.disabled = true;
+                jQuery.post(me.deleteUrl, {id:id, csrf: me.csrf, mode: 'soft-delete'}).then(function (data) {
+                    console.log(data);
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-success';
+                    me.alertMessage = 'File deleted.';
+                    var index = _.findIndex(me.files, function(file){
+                        return file.id === id;
+                    });
+                    Vue.delete(me.files, index);
+                }).fail(function (jqXHR, textStatus, httpError) {
+                    var error = jqXHR.responseJSON || ['Unknown error'];
+                    me.alertShow = true;
+                    me.alertClass = 'flash flash-error';
+                    me.alertMessage = error.shift();
+                }).always(function () {
+                    file.deleteButton.text = me.btnDeleteText;
+                    file.deleteButton.disabled = false;
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

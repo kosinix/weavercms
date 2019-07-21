@@ -1,0 +1,92 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Dashboard</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center text-center">
+        <div class="col-12">
+            <div class="box box-welcome">
+                <h2><span>WeaverCMS</span> - A hybrid content management system for Node.js.</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Everything is a Page</h2>
+                <p>No need to know the difference between a post, a page, or an archive.</p>
+                <a href="/admin/page-create.html" class="btn btn-primary">Create a Page</a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Image Variants</h2>
+                <p>Create different variation of the same image.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Upload an Image</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>A Hybrid CMS</h2>
+                <p>Switch between static or dynamic page, anytime.</p>
+                <a href="/admin/page-create.html" class="btn btn-primary">Create a Page</a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6">
+            <div class="box">
+                <h2>One Source of Truth</h2>
+                <p>No need to look at different places to find where that pesky code resides.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Show me how</a>
+                
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Simple Workflow</h2>
+                <p>Accept a request, do domething with it, send a response.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Learn More</a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Email Sending</h2>
+                <p>Send and receive emails, transactional or otherwise.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Go to Settings</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Small and Portable</h2>
+                <p>Runs on SQLite. App data is separate from the source code.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Learn More</a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6">
+            <div class="box box-create-page">
+                <h2>Admin Isolation</h2>
+                <p>Admin is a separate app that runs on a separate port.</p>
+                <a href="/admin/media-create.html" class="btn btn-primary">Go to Settings</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6">
+            <div class="box">
+                <h2>Log Overview</h2>
+                <p>Last log entry: 2 days ago</p>
+                <p>Log size: 12mb</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

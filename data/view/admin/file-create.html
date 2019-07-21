@@ -1,0 +1,148 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Add File</h1>
+        </div>
+        <div class="col-12">
+            <div v-cloak id="upload-queue">
+
+                <div id="drop-zone" class="drop-zone">
+                    <div class="icon">
+                        <svg style="width:32px;height:32px" viewBox="0 0 24 24"><path d="M14,13V17H10V13H7L12,8L17,13M19.35,10.03C18.67,6.59 15.64,4 12,4C9.11,4 6.6,5.64 5.35,8.03C2.34,8.36 0,10.9 0,14A6,6 0 0,0 6,20H19A5,5 0 0,0 24,15C24,12.36 21.95,10.22 19.35,10.03Z" /></svg>
+                    </div>
+                    <p>Drag and drop files here to upload...</p>
+                    <p class="or">or</p>
+                    <button class="btn btn-primary" id="browse-files">Select Files</button>
+                </div>
+                
+                <table id="table-upload-queue" class="table table-upload-queue">
+                    <tr v-for="(upload, index) in uploads" v-bind:id="upload.id">
+                        <td class="name">${upload.origName}</td>
+                        <td class="size">${upload.size}</td>
+                        <td>
+                            <div class="progress">
+                                <div v-bind:style="'width: '+upload.progress+'%'" v-bind:aria-valuenow="upload.progress" v-bind:class="'progress-bar '+upload.class" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </td>
+                        <td class="status">
+                            <button v-on:click.prevent="onDelete(upload.id)" v-if="upload.uploadStarted==false" class="btn btn-sm remove">Remove</button>
+                            <span v-if="upload.uploadStarted">${upload.status}</span>
+                        </td>
+                    </tr>
+                </table>
+                <button v-if="showUploadBtn" v-on:click.prevent="startUpload" class="btn btn-primary btn-md btn-upload" type="button">Start Upload</button>
+            </div>
+            
+            <pre id="console"></pre>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{{admin.url}}/js/jquery.min.js"></script>
+<script src="{{admin.url}}/js/lodash.min.js"></script>
+<script src="{{admin.url}}/js/plupload/js/plupload.full.min.js"></script>
+<script src="{{admin.url}}/js/vue.min.js"></script>
+<script>
+var uploadQueue = new Vue({
+    delimiters: ["${", "}"],
+    el: '#upload-queue',
+    data: {
+        uploader: null,
+        uploading: false,
+        uploads: {},
+        adminUrl: '{{admin.url}}',
+        csrf: "{{csrf}}",
+    },
+    computed: {
+        uploadCount: function(){
+            return _.size(this.uploads);
+        },
+        showUploadBtn: function(){
+            if (_.size(this.uploads) > 0 && this.uploading===false){
+                return true;
+            }
+            return false;
+        },
+        fieldDisabled: function(){
+            if (_.size(this.uploads) > 0 && this.uploading===false){
+                return "";
+            }
+            return "disabled";
+        }
+    },
+    methods: {
+        onDelete: function(id, e){
+            this.uploader.removeFile(id);
+            Vue.delete(this.uploads, id)
+        },
+        startUpload: function(){
+            this.uploading = true;
+            this.uploader.start();
+        }
+    },
+    mounted: function () {
+        var uploader = new plupload.Uploader({
+            drop_element: 'drop-zone', // ID of drop
+            browse_button: 'browse-files', // this can be an id of a DOM element or the DOM element itself
+            url: '/admin/upload.json',
+            file_data_name: 'uploads',
+            // chunk_size: '12mb',
+            headers: {
+                csrf: "{{csrf}}"
+            }
+        });
+        uploader.init();
+        this.uploader = uploader;
+    }
+});
+
+
+uploadQueue.uploader.bind('FilesAdded', function(up, files) {
+    plupload.each(files, function(file) {
+        
+        Vue.set(uploadQueue.uploads, file.id, {
+            id: file.id,
+            origName: file.name,
+            size: plupload.formatSize(file.size),
+            progress: "0",
+            status: "",
+            uploadStarted: false,
+            class: 'bg-success'
+        })
+    });
+});
+uploadQueue.uploader.bind('BeforeChunkUpload', function(up, file, post, blob, offset){
+    // console.log('file:', file);
+    post.name = file.id;
+    post.origName = file.name;
+});
+uploadQueue.uploader.bind('UploadProgress', function(up, file) {
+    Vue.set(uploadQueue.uploads, file.id, Object.assign(uploadQueue.uploads[file.id], {status:"Uploading...", progress: file.percent, uploadStarted: true}))
+});
+uploadQueue.uploader.bind('FileUploaded', function(up, file, result) {
+    var status = 'An error occured.',
+        css = 'bg-warning';
+
+    if(result.status==200){
+        status = 'Done.';
+        css = 'bg-success';
+    } else {
+        console.error('Upload error:', result.response);
+    }
+    Vue.set(uploadQueue.uploads, file.id, Object.assign(uploadQueue.uploads[file.id], {status: status, progress: file.percent, class: css}))
+});
+uploadQueue.uploader.bind('UploadComplete', function(up, file, result) {
+    uploadQueue.uploading = false;
+});
+uploadQueue.uploader.bind('Error', function(up, err) {
+    console.error('Upload error:', err);
+});
+
+</script>
+{% endblock %}

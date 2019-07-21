@@ -1,0 +1,37 @@
+{% extends "body.html" %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Update File <a class="btn btn-light btn-sm" href="/admin/file-create.html">Add New</a></h1>
+        </div>
+        <div class="col-12">
+
+            <div class="file-detail">
+                <div class="file-preview">
+                    <img src="{{baseUrl}}/admin/file-read?uid={{file.uid}}" alt="{{file.originalName}}">
+                </div>
+                <div class="file-properties">
+                    <div class="field field-uid">
+                        UID: {{file.uid}}
+                    </div>
+                    <div class="field field-date">
+                        Created: {{file.createdAt}}
+                    </div>
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <input id="name" type="text" name="name" value="{{file.origName}}">
+                    </div>
+                    <div class="field">
+                        <label for="location">Location</label>
+                        <input id="location" type="text" name="location" value="{{file.location}}">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

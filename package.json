@@ -1,0 +1,37 @@
+{
+  "name": "weavercms-admin",
+  "version": "1.0.0",
+  "description": "Weaver CMS administration web app.",
+  "main": "app.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "author": "Nico Amarilla",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.19.0",
+    "busboy": "^0.2.14",
+    "compression": "^1.7.4",
+    "connect-sqlite3": "^0.9.11",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "express-session": "^1.16.2",
+    "jimp": "^0.2.28",
+    "lodash": "^4.17.15",
+    "luxon": "^0.2.12",
+    "moment": "^2.24.0",
+    "monaco-editor": "^0.10.1",
+    "multer": "^1.4.2",
+    "nunjucks": "^3.2.0",
+    "querystring": "^0.2.0",
+    "sequelize": "^6.0.0",
+    "sqlite3": "^4.0.9",
+    "unirest": "^0.6.0",
+    "validator": "^9.4.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^4.1.0"
+  }
+}

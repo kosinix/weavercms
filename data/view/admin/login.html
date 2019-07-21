@@ -1,0 +1,88 @@
+{% extends "document.html" %}
+
+{% block body %}
+<body class="{{bodyClass}}">
+
+    <div v-cloak id="login-area" class="container container-login">
+        <div class="row justify-content-center text-center">
+            <div class="col-12 col-sm-4">
+                <h1>Weaver</h1>
+                <div v-if="alertShow" v-bind:class="alertClass">
+                    ${ alert }
+                </div>
+                <form v-on:submit.prevent="onSubmit" v-bind:action="formUrl" id="form-login" class="login" method="POST">
+                    <input v-model="redirectTo" type="hidden" name="redirectTo" value="${redirectTo}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input v-model="username" v-bind:disabled="fieldDisabled" type="text" name="username" class="form-control" id="username" placeholder="" autocomplete="username email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input v-model="password" v-bind:disabled="fieldDisabled" type="password" name="password" minlength="8" class="form-control" id="password" placeholder="Password" autocomplete="current-password">
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-12 col-sm-6">
+                            <input v-model="remember" v-bind:disabled="fieldDisabled" type="checkbox" name="remember" id="remember" value="1">
+                            <label for="remember">Remember Me</label>
+                        </div>
+                        <div class="col-12 col-sm-6 text-right">
+                            <button class="btn btn-primary" v-bind:disabled="fieldDisabled" type="submit">${btnSubmitValue}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    {% block scripts %}
+    <script src="{{admin.url}}/js/jquery.min.js"></script>
+    <script src="{{admin.url}}/js/vue.min.js"></script>
+    <script>
+        var form = new Vue({
+            delimiters: ["${", "}"],
+            el: '#login-area',
+            data: {
+                formId:'#form-login',
+                formUrl: "{{admin.url}}/admin/login.json",
+                redirectTo: "{{redirectTo}}",
+                btnSubmitValue: "Login",
+                btnSubmitValueWait: "Logging in...",
+                username:"admin",
+                password:"admin",
+                fieldDisabled: false,
+                alertClass: "flash",
+                alert: "",
+                alertShow: false
+            },
+            methods: {
+                onSubmit: function(e){
+                    var me = this,
+                        btnSubmitValue = me.btnSubmitValue,
+                        formData = jQuery(me.formId).serializeArray();
+
+                    me.btnSubmitValue = me.btnSubmitValueWait;
+                    me.fieldDisabled = true;
+
+                    jQuery.post(me.formUrl, formData).then(function(data){
+                        console.log(data);
+                        me.alertShow = true;
+                        me.alertClass = "flash flash-success";
+                        me.alert = "Login successful, please wait...";
+                        window.location.replace(data.redirectTo);
+                    }).fail(function(jqXHR, textStatus, httpError){
+                        console.log(jqXHR);
+                        var error = jqXHR.responseJSON || ["Unknown error"];
+                        me.alertShow = true;
+                        me.alertClass = "flash flash-error";
+                        me.alert = error.shift();
+                    }).always(function(){
+                        me.btnSubmitValue = btnSubmitValue;
+                        me.fieldDisabled = false;
+                    });
+                }
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+{% endblock %}

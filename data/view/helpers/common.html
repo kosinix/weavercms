@@ -1,0 +1,13 @@
+{% macro navigation(menu) %}
+{% if menu %}
+<nav class="{{menu.id}}">
+    <ul>
+        {% for item in menu.items %}
+
+        <li><a href="{{ item.url }}">{{ item.name }}</a></li>
+
+        {% endfor %}
+    </ul>
+</nav>
+{% endif %}
+{% endmacro %}
